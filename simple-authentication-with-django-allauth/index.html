@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+  <head>
+  <link href="http://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  <!-- Enable responsiveness on mobile devices-->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+
+  <title>
+    Jonathan Cox
+  </title>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/public/css/poole.css">
+  <link rel="stylesheet" href="/public/css/syntax.css">
+  <link rel="stylesheet" href="/public/css/hyde.css">
+  <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=PT+Sans:400,400italic,700|Abril+Fatface">
+
+  <!-- Icons -->
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="public/apple-touch-icon-144-precomposed.png">
+                                 <link rel="shortcut icon" href="public/favicon.ico">
+
+  <!-- RSS -->
+  <link rel="alternate" type="application/rss+xml" title="RSS" href="/atom.xml">
+</head>
+
+
+  <body>
+
+    <div class="sidebar">
+  <div class="container sidebar-sticky">
+    <div class="sidebar-about">
+      <h1>
+        <a href="">
+          Jonathan Cox
+        </a>
+      </h1>
+      <p class="lead">Reporter and news app developer. Django, React, D3, Leaflet</p>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a class="sidebar-nav-item" href="/">Home</a>
+      <a class="sidebar-nav-item" href="https://github.com/geezhawk">GitHub</a>
+      <a class="sidebar-nav-item" href="/portfolio/">Portfolio</a>
+      <a class="sidebar-nav-item" href="/me/">About me</a>
+      <a class="sidebar-nav-item" href="/contact/">Contact</a>
+    </nav>
+  </div>
+</div>
+
+
+    <div class="content container">
+      <div class="post">
+  <h1 class="post-title">The missing Django Allauth tutorial</h1>
+  <span class="post-date">12 Jan 2016</span>
+  <p><em>This tutorial uses Django 1.8.4 and django allauth 0.24.1, and assumes that you have a basic familiarity with Django.</em></p>
+
+<p><a href="https://github.com/pennersr/django-allauth/">Django allauth</a> is a powerful, easy-to-use authentication system, but the lack of official documentation can make it daunting, especially to beginners. Though there are several excellent third-party tutorials available, none were designed with Django 1.8 in mind. This tutorial aims to fill that gap.</p>
+
+<p>In the interest of keeping things simple, I won’t go into social authentication, though that should be easy to set up once you have this running. In the next 400 words or so, I’ll explain:</p>
+
+<ul>
+  <li>How to install allauth</li>
+  <li>How to configure your settings and urlconf</li>
+  <li>How to get a simple sign-up and login page running using allauth’s stock templates</li>
+  <li>How to override the allauth templates with your own (prettier) custom templates</li>
+</ul>
+
+<p>If this gets enough views, I’ll add tutorials on the following:</p>
+
+<ul>
+  <li>How to create a custom sign-up form with new fields</li>
+  <li>How to use allauth with a custom User model</li>
+</ul>
+
+<p>Let’s get started!</p>
+
+<h2 id="installation">Installation</h2>
+<p>You’re using a virtualenv, right? Allauth is in pypi, so installation is a cinch: just activate your virtualenv, and enter <code>$ pip install django-allauth</code> to install the latest version.</p>
+
+<h2 id="settings">Settings</h2>
+<p>Your next step is to make a few changes to your <code>settings.py</code> file. Start by registering allauth in INSTALLED_APPS:</p>
+
+<figure class="highlight"><pre><code class="language-python" data-lang="python">    <span class="n">INSTALLED_APPS</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="o">...</span>
+    <span class="s">&#39;allauth&#39;</span><span class="p">,</span>
+    <span class="s">&#39;allauth.account&#39;</span><span class="p">,</span>
+    <span class="o">...</span>
+    <span class="p">)</span> </code></pre></figure>
+
+<p>Next, you need to manually set your SITE_ID variable in <code>settings.py</code>. Why? Because allauth uses this to fill in email and html templates with information about your site’s name and domain. First, add <code>SITE_ID = 1</code> in <code>settings.py</code>.</p>
+
+<p>Then run the localhost server and log in to your project’s admin at localhost:8000/admin. If you don’t yet have a superuser account yet you can create one by navigating to the root of your project and using the <code>python manage.py createsuperuser</code> command. Just follow the prompts to create a superuser.</p>
+
+<p>After logging in to your admin you should see a <code>Site</code> section in the dashboard. Now you can change the site’s name and domain (unless your domain happens, through some freak accident, to be “example.com”).</p>
+
+<p>Go back to <code>settings.py</code>, and add your authentication backends, like so:</p>
+
+<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">AUTHENTICATION_BACKENDS</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="c"># Needed to login by username in Django admin, regardless of `allauth`</span>
+    <span class="s">&quot;django.contrib.auth.backends.ModelBackend&quot;</span><span class="p">,</span>
+    <span class="c"># `allauth` specific authentication methods, such as login by e-mail</span>
+    <span class="s">&quot;allauth.account.auth_backends.AuthenticationBackend&quot;</span>
+<span class="p">)</span></code></pre></figure>
+
+<p>Last but not least, let’s tell allauth which url to route to when login is successful. Add <code>LOGIN_REDIRECT_URL = '/awesome-page/'</code> to your <code>settings.py</code>, and change ‘awesome-page’ to whatever page you want to redirect to after users successfully log in.</p>
+
+<h2 id="routing">Routing</h2>
+
+<p>Now let’s focus on configuring our routers. Go to <code>urls.py</code> and add the following to your urlpatterns to register the allauth urls:</p>
+
+<figure class="highlight"><pre><code class="language-python" data-lang="python">    <span class="n">urlpatterns</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="o">...</span>
+        <span class="c">#You don&#39;t have to use &quot;accounts,&quot; but I recommend it to keep </span>
+        <span class="c">#authentication separate from the rest of your app.  </span>
+        <span class="n">url</span><span class="p">(</span><span class="s">r&#39;^accounts/&#39;</span><span class="p">,</span> <span class="n">include</span><span class="p">(</span><span class="s">&#39;allauth.urls&#39;</span><span class="p">)),</span> 
+        <span class="o">...</span>
+    <span class="p">]</span></code></pre></figure>
+
+<p>Now would be a good time to familiarize yourself with <a href="https://github.com/pennersr/django-allauth/blob/master/allauth/account/urls.py">all the free urls</a> that allauth comes with. These urls are a map of the fairy dreamland of easy password resets and email confirmations that allauth provides.</p>
+
+<p>As a quick sanity check, let’s fire up our server and see if everything is working smoothly. Navigate back to your root directory, run <code>python manage.py runserver</code> and go to localhost:8000/accounts/login. You should see allauth’s hideous stock login form. Don’t worry - it’s easy to prettify these templates.</p>
+
+<h2 id="custom-templates">Custom Templates</h2>
+<p>Setting up allauth with custom templates is easy. Simply add an <code>accounts</code> directory to the templates directory in your app. To override an allauth template, just create a new <code>.html</code> file with the same name. In this case, you can create one for login.html.</p>
+
+<p>You can use the <a href="https://github.com/pennersr/django-allauth/blob/master/allauth/templates/account/login.html">login template in allauth.templates.account</a> as an example. Just remember: if you’re copying allauth’s templates, you need to write a <code>base.html</code> to inherit from!</p>
+
+<h2 id="success">Success</h2>
+<p>You have your nice custom login page set up, right? If so, congrats! Try logging in with the superuser you already created, and see if it redirects to the <code>LOGIN_REDIRECT_URL</code> you specified in <code>settings.py</code>. That’s all there is to it!</p>
+
+<p>Actually that’s not all there is to it - check out the list of configuration options in the <a href="http://django-allauth.readthedocs.org/en/latest/configuration.html">allauth docs</a> to see all the ways you can bend allauth to your will. You’ll probably need to use at least one or two of these to fit your use case.</p>
+
+<p>If you’ve followed along this far, you should be good to go. Now sit back and watch as millions upon millions of users (or, let’s be honest, dozens) register with your beautiful, easy-to-use authentication system.</p>
+
+</div>
+
+<div class="related">
+  <h2>Related Posts</h2>
+  <ul class="related-posts">
+    
+      <li>
+        <h3>
+          <a href="/user-authentication-with-react-and-django-rest-framework">
+            Token-based authentication with Django and React
+            <small>24 Mar 2016</small>
+          </a>
+        </h3>
+      </li>
+    
+      <li>
+        <h3>
+          <a href="/using-react-with-django-rest-framework">
+            Using React with Django, with a little help from Webpack
+            <small>02 Feb 2016</small>
+          </a>
+        </h3>
+      </li>
+    
+  </ul>
+</div>
+
+    </div>
+
+  </body>
+</html>

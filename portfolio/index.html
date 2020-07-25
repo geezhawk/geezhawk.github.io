@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+  <head>
+  <link href="http://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  <!-- Enable responsiveness on mobile devices-->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+
+  <title>
+    Jonathan Cox
+  </title>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/public/css/poole.css">
+  <link rel="stylesheet" href="/public/css/syntax.css">
+  <link rel="stylesheet" href="/public/css/hyde.css">
+  <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=PT+Sans:400,400italic,700|Abril+Fatface">
+
+  <!-- Icons -->
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="public/apple-touch-icon-144-precomposed.png">
+                                 <link rel="shortcut icon" href="public/favicon.ico">
+
+  <!-- RSS -->
+  <link rel="alternate" type="application/rss+xml" title="RSS" href="/atom.xml">
+</head>
+
+
+  <body>
+
+    <div class="sidebar">
+  <div class="container sidebar-sticky">
+    <div class="sidebar-about">
+      <h1>
+        <a href="">
+          Jonathan Cox
+        </a>
+      </h1>
+      <p class="lead">Reporter and news app developer. Django, React, D3, Leaflet</p>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a class="sidebar-nav-item" href="/">Home</a>
+      <a class="sidebar-nav-item" href="https://github.com/geezhawk">GitHub</a>
+      <a class="sidebar-nav-item" href="/portfolio/">Portfolio</a>
+      <a class="sidebar-nav-item" href="/me/">About me</a>
+      <a class="sidebar-nav-item" href="/contact/">Contact</a>
+    </nav>
+  </div>
+</div>
+
+
+    <div class="content container">
+      <div class="main-content">
+    <article class="module color-3">
+      <h1>PORTFOLIO</h1>
+      <hr>
+      <p>For a full list of my projects, see my <a href="http://github.com/geezhawk/">GitHub page</a>. To see details about my work for NY Times, Khmer Times, Charlotte Magazine, and others, check out <a href="https://www.dropbox.com/s/73twln1wb576tlh/cox-resume-edited.pdf?dl=0">my resume on Dropbox</a>. And you have my permission to follow me on <a href="https://twitter.com/Geezhawk">Twitter</a>.</p>
+
+<h2 id="visualizations">Visualizations</h2>
+<p>I’m addicted to building graphs with D3 and making maps with Leaflet. You can see the terrible consequences of my addiction here. Titles are links to the visualizations.</p>
+
+<h3 id="dynamic-weather-graphhttpgeezhawkgithubiodynamic-weather-chart"><a href="http://geezhawk.github.io/dynamic-weather-chart/">Dynamic weather graph</a></h3>
+<p>A React app that populates a select box with the list of cities from Weather Underground’s autocomplete API. When a city is selected the app makes another AJAX call to Weather Underground, then generates a D3 line graph of the hourly forecast for that city for the next three days, as well as historical high and low temperatures.</p>
+
+<p><a href="https://github.com/geezhawk/weather-app">Source on GitHub.</a></p>
+
+<h3 id="austin-restaurant-health-scoreshttpgeezhawkgithubioaustin-restaurant-scores"><a href="http://geezhawk.github.io/austin-restaurant-scores/">Austin restaurant health scores</a></h3>
+<p>A LeafletJS map with marker clusters and search functionality that plots the locations and scores of all the establishments (restaurants, hotels, and schools) in the city’s health inspection database. I obtained the data from data.austintexas.gov, cleaned it with OpenRefine, geocoded the addresses, and converted it to JSON with a Python script.<br />
+<a href="https://github.com/geezhawk/austin-restaurants">Source on GitHub.</a></p>
+
+<h3 id="how-does-movie-quality-correlate-with-box-office-grosshttpblocksorggeezhawkrawe7099099cd7c526ee71b530b4c95de57"><a href="http://bl.ocks.org/geezhawk/raw/e7099099cd7c526ee71b530b4c95de57/">How does movie quality correlate with box office gross?</a></h3>
+<p>An interactive bubble scatterplot with data about some of the big-budget movies of 2013. The x, y, and radius of each bubble encodes the movie’s Rotten Tomatoes score, worldwide gross, and budget. Hover over one of the bubbles to see the movie’s title. <a href="https://docs.google.com/spreadsheets/d/1RMBdXYCrI_8S6wlTicmGbAXuh1TnnbCG6vQkZ6hOyf8/edit?authkey=CPuZiLcG#gid=31">The data</a> was provided as part of the Information is Beautiful contest.  <br />
+<a href="https://gist.github.com/geezhawk/e7099099cd7c526ee71b530b4c95de57">Source on GitHub</a></p>
+
+<h3 id="minimum-wage-by-statehttpgeezhawkgithubiominimum-wages"><a href="http://geezhawk.github.io/minimum-wages/">Minimum wage by state</a></h3>
+<p>A sortable D3 bar chart that uses a linear scale to programatically set the color of each of the bars, and features nice, smooth transitions from sorted to unsorted.<br />
+<a href="https://gist.github.com/geezhawk/cd41ef14598a137883945cb7bf92a8a3">Source on GitHub</a></p>
+
+<h3 id="number-of-masted-warships-active-in-british-royal-navyhttpblocksorggeezhawkf1ce3ac95468619d18480af2ec6523e4"><a href="http://bl.ocks.org/geezhawk/f1ce3ac95468619d18480af2ec6523e4">Number of masted warships active in British Royal Navy</a></h3>
+<p>I’m currently reading Patrick O’Brian’s magnificent Aubrey-Maturin series, and wanted to graph the rise and fall of the man of war as the workhorse of the British navy. Using data I scraped from <a href="http://www.pdavis.nl/MidVicShips.php?page=1">this site</a>, I filtered out all the ships with fewer than 5 guns, and plotted the resulting numbers of ships on a line graph. The data I used to plot this graph was collected by an enthusiast, not a professional, so take it with a grain of salt.<br />
+<a href="https://github.com/geezhawk/ships">Source on GitHub</a></p>
+
+<h3 id="nasa-yearly-budget-since-1960httpblocksorggeezhawke0ba35144f7f9796636f78f168c0e742"><a href="http://bl.ocks.org/geezhawk/e0ba35144f7f9796636f78f168c0e742">NASA yearly budget since 1960</a></h3>
+<p>An interactive line graph built with D3 that creates a tooltip with information about
+the datapoint closest to the user’s mouse.<br />
+<a href="https://gist.github.com/geezhawk/e0ba35144f7f9796636f78f168c0e742">Source on GitHub</a></p>
+
+<h3 id="possible-tax-revenue-from-gambling-in-gahttpgeezhawkgithubiocasino-sliders"><a href="http://geezhawk.github.io/casino-sliders/">Possible tax revenue from gambling in GA</a></h3>
+<p>A set of HTML sliders built with D3. Each of the sliders uses D3’s linear scale to show the value encoded by the handle’s position. The script uses D3’s dispatch() event listeners, as well as the useful drag() function, to change the labels and the position of the slider handles.<br />
+<a href="https://gist.github.com/geezhawk/e0c0a6b8b4505693cb53118d0e4cac37">Source on GitHub</a></p>
+
+<h2 id="apps">Apps</h2>
+<p>I’ve built a number of projects using a Postgres - Django Rest Framework - React stack, as well as a couple Chrome extensions and a chat bot powered by NodeJS and Socket.io.</p>
+
+<h3 id="flighthoundhttpsgithubcomgeezhawkflighthound"><a href="https://github.com/geezhawk/flighthound">Flighthound</a></h3>
+<p>A single-page application built with Django Rest Framework and React that allows users to create flight price alerts and emails them when the price of a flight drops below the price they’ve set. Features live updates, a management command to get pricing from Google’s QPX cheap flights API, and a user authentication system that uses <code>react-router</code> to control access to certain pages.</p>
+
+<h3 id="elizabethan-insult-bothttpsgithubcomgeezhawkelizabethan-insult-bot"><a href="https://github.com/geezhawk/elizabethan-insult-bot">Elizabethan Insult Bot</a></h3>
+<p>A simple chat bot with an Express server that uses Socket.io to listen for messages, and quickly updates the page with the user’s message and a response that’s automatically generated by the server: in this case a randomly-generated insult composed of popular Elizabethan phrases.</p>
+
+<h3 id="sun-never-sets-on-ushttpsgithubcomgeezhawkdjango-imprecise-location-sharing"><a href="https://github.com/geezhawk/django-imprecise-location-sharing">Sun Never Sets on Us</a></h3>
+<p>An imprecise location-sharing app built with Django that allows users to share which city they’re in with friends, and sends them weekly email updates about where their friend group has moved. It’s linked to a <a href="https://github.com/geezhawk/location-sharing-extension">chrome extension</a> that gets the user’s location with the HTML5 navigator API, and uses Google’s reverse-geocoding API to find the city name. The app features a system for creating “friendships” between users, and sends friend requests via AJAX without a page refresh.</p>
+
+<h3 id="wikipedia-hummingbirdhttpsgithubcomgeezhawkwikipedia-hummingbird"><a href="https://github.com/geezhawk/wikipedia-hummingbird">Wikipedia Hummingbird</a></h3>
+<p>A chrome extension that pulls data from Wikipedia. The user highlights a term, hits a keyboard
+shortcut, and the extension pops up a modal with the first paragraph of the first article on that
+subject from the Wikipedia search results, as well as a link to the full article.</p>
+
+<h3 id="django-adventurehttpsgithubcomgeezhawkdjango-adventure"><a href="https://github.com/geezhawk/django-adventure">Django Adventure</a></h3>
+<p>A simple framework for building adventure games with Django.</p>
+
+<h3 id="three-digithttpsgithubcomgeezhawkdjango-view-tracker"><a href="https://github.com/geezhawk/django-view-tracker">Three Digit</a></h3>
+<p>An app that scrapes story view counts from khmertimeskh.com and uses the data to track reporters’
+views. It uses pattern-matching to get story urls from the front page, and parses each story for the
+reporter’s name, headline, and view count. The data is served from a Django Rest Framework backend
+and displayed by a ReactJS frontend.</p>
+
+<h2 id="maps">Maps</h2>
+<p>Gotta love maps. I used CartoDB to create a map of <a href="http://citoyen0.cartodb.com/viz/304d1974-bfc2-11e4-a829-0e0c41326911/public_map">all the drunk driving arrests in the city
+of Charlotte</a> in 2013/4, using data I obtained from the police department and cleaned using OpenRefine. I also made a map of <a href="https://citoyen0.cartodb.com/viz/b78bde9e-59e5-11e5-9ac6-0e8dde98a187/public_map">which countries the most popular TV shows in Cambodia come from</a>.</p>
+
+    </article>
+</div>
+
+    </div>
+
+  </body>
+</html>

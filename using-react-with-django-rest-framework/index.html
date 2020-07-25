@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+  <head>
+  <link href="http://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  <!-- Enable responsiveness on mobile devices-->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+
+  <title>
+    Jonathan Cox
+  </title>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/public/css/poole.css">
+  <link rel="stylesheet" href="/public/css/syntax.css">
+  <link rel="stylesheet" href="/public/css/hyde.css">
+  <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=PT+Sans:400,400italic,700|Abril+Fatface">
+
+  <!-- Icons -->
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="public/apple-touch-icon-144-precomposed.png">
+                                 <link rel="shortcut icon" href="public/favicon.ico">
+
+  <!-- RSS -->
+  <link rel="alternate" type="application/rss+xml" title="RSS" href="/atom.xml">
+</head>
+
+
+  <body>
+
+    <div class="sidebar">
+  <div class="container sidebar-sticky">
+    <div class="sidebar-about">
+      <h1>
+        <a href="">
+          Jonathan Cox
+        </a>
+      </h1>
+      <p class="lead">Reporter and news app developer. Django, React, D3, Leaflet</p>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a class="sidebar-nav-item" href="/">Home</a>
+      <a class="sidebar-nav-item" href="https://github.com/geezhawk">GitHub</a>
+      <a class="sidebar-nav-item" href="/portfolio/">Portfolio</a>
+      <a class="sidebar-nav-item" href="/me/">About me</a>
+      <a class="sidebar-nav-item" href="/contact/">Contact</a>
+    </nav>
+  </div>
+</div>
+
+
+    <div class="content container">
+      <div class="post">
+  <h1 class="post-title">Using React with Django, with a little help from Webpack</h1>
+  <span class="post-date">02 Feb 2016</span>
+  <p><em>View the complete app, with different stages tagged, on <a href="https://github.com/geezhawk/drf-react.git">Github</a></em></p>
+
+<p>Hooking React into your Django app can be difficult, especially if you’re unfamiliar with webpack, npm, and babel.</p>
+
+<p>I recommend you take the time to read the docs for all these tools, but to get you started I’m going to walk you through how to get Django Rest Framework (DRF) to work with React. This tutorial assumes you already have DRF set up (tag v0.0.1 in the Github repo). If you don’t know how to set up DRF, work through the <a href="http://www.django-rest-framework.org/tutorial/1-serialization/">tutorial</a>.</p>
+
+<p>Some of the webpack stuff in here is lifted almost directly from <a href="http://owaislone.org/blog/webpack-plus-reactjs-and-django/">this tutorial</a> by the author of django-webpack-loader. His tutorial hasn’t been updated for npm@3, though, and doesn’t go into making AJAX requests with React.</p>
+
+<p>Here’s our roadmap:</p>
+
+<ul>
+  <li><strong>Our Tools</strong></li>
+  <li><strong>Hello npm</strong></li>
+  <li><strong>Hello Webpack</strong></li>
+  <li><strong>Hello React</strong></li>
+  <li><strong>Hello Django</strong></li>
+  <li><strong>Hello AJAX</strong></li>
+  <li><strong>Success!</strong></li>
+</ul>
+
+<h1 id="our-tools">Our Tools</h1>
+
+<ul>
+  <li>
+    <p>npm</p>
+
+    <p>npm is an elegant way to handle frontend dependencies. It saves you from  moving a bunch of javascript modules around your staticfiles directories.</p>
+  </li>
+  <li>
+    <p>webpack</p>
+
+    <p><a href="http://webpack.github.io/docs/what-is-webpack.html">Webpack</a> is a module bundler. It takes JSX, React, and all their dependencies, and compiles them to JavaScript for the browser. It does this by allowing you to plug in whichever <a href="http://webpack.github.io/docs/loaders.html">loaders</a> you need. More on loaders below.</p>
+
+    <p>One of the coolest features of webpack is that you can store all your preferences in a single file (webpack.config.js) so that you can build your frontend with just one command.</p>
+  </li>
+  <li>
+    <p>webpack-bundle-tracker</p>
+
+    <p>This plugin gets useful information from webpack and stores it in a json file. It will help webpack talk with Django.</p>
+  </li>
+  <li>
+    <p>currency-converter</p>
+
+    <p>
+      This widget will help you find out the exchange rate, for example <a href="https://coindataflow.com/en/pair/etn-usd">etn to usd</a>. It also supports backward conversion.</p>
+  </li>
+  <li>
+    <p>babel-loader</p>
+
+    <p>According to its documentation, babel-loader allows “transpiling” of Javascript files. That science-fictiony term just means that it takes our JSX code and turns it into plain JavaScript that can run in any browser, anywhere. Remember: a loader is just a JavaScript library that transforms code from one dialect into another.</p>
+  </li>
+  <li>
+    <p>django-webpack-loader</p>
+
+    <p>This uses the <code>webpack-stats.json</code> file to figure out information about the bundles generated by webpack, allowing you to use these bundles in Django.</p>
+  </li>
+</ul>
+
+<h1 id="hello-npm">Hello npm</h1>
+
+<p>Navigate to the root directory of your Django project and run <code>npm init</code>. Then follow the prompts to have npm automatically create a <code>package.json</code> file for you. If you’ve never used npm before, it’s like python’s virtualenv, except that it stores dependencies in a directory called <code>node_modules</code>.</p>
+
+<p>Now we’re going to install our npm dependencies - babel, jquery, react, and webpack. Run the following command to install these dependencies in <code>node_modules</code>. The <code>--save-dev</code> flag tells npm to automatically add these dependencies to  <code>package.json</code>.</p>
+
+<p><code>npm install --save-dev jquery react react-dom webpack webpack-bundle-tracker babel-loader babel-core babel-preset-es2015 babel-preset-react</code></p>
+
+<p>Don’t be alarmed if the above command takes a while to run. npm has huge dependency chains, meaning that it takes a lot of HTTP requests to get all the necessary data.</p>
+
+<h1 id="hello-webpack">Hello Webpack</h1>
+
+<p>Now that we’ve installed our dependencies, it’s time to set up our module bundler, webpack. First, run <code>mkdir -p assets/js</code> to create a directory for our js code. Then run <code>touch assets/js/index.js</code>. This file will be the entry point of our app.</p>
+
+<p>Create a file called <code>webpack.config.js</code> in your root directory. This will store configuration information that tells webpack what plugins to use, where to look for modules, how to compile different file extensions, etc. You can read about all the options this config file provides you in the <a href="http://webpack.github.io/docs/configuration.html">webpack docs</a>.</p>
+
+<p>Below is how our <code>webpack.config.js</code> file is going to look. I recommend that you type it all out by hand, and figure out how each part works. This will make your life a lot easier when you want to come back and customize it later.</p>
+
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="c1">//require our dependencies</span>
+<span class="kd">var</span> <span class="nx">path</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;path&#39;</span><span class="p">)</span>
+<span class="kd">var</span> <span class="nx">webpack</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;webpack&#39;</span><span class="p">)</span>
+<span class="kd">var</span> <span class="nx">BundleTracker</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;webpack-bundle-tracker&#39;</span><span class="p">)</span>
+
+<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="c1">//the base directory (absolute path) for resolving the entry option</span>
+    <span class="nx">context</span><span class="o">:</span> <span class="nx">__dirname</span><span class="p">,</span>
+    <span class="c1">//the entry point we created earlier. Note that &#39;./&#39; means </span>
+    <span class="c1">//your current directory. You don&#39;t have to specify the extension  now,</span>
+    <span class="c1">//because you will specify extensions later in the `resolve` section</span>
+    <span class="nx">entry</span><span class="o">:</span> <span class="s1">&#39;./assets/js/index&#39;</span><span class="p">,</span> 
+    
+    <span class="nx">output</span><span class="o">:</span> <span class="p">{</span>
+        <span class="c1">//where you want your compiled bundle to be stored</span>
+        <span class="nx">path</span><span class="o">:</span> <span class="nx">path</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="s1">&#39;./assets/bundles/&#39;</span><span class="p">),</span> 
+        <span class="c1">//naming convention webpack should use for your files</span>
+        <span class="nx">filename</span><span class="o">:</span> <span class="s1">&#39;[name]-[hash].js&#39;</span><span class="p">,</span> 
+    <span class="p">},</span>
+    
+    <span class="nx">plugins</span><span class="o">:</span> <span class="p">[</span>
+        <span class="c1">//tells webpack where to store data about your bundles.</span>
+        <span class="k">new</span> <span class="nx">BundleTracker</span><span class="p">({</span><span class="nx">filename</span><span class="o">:</span> <span class="s1">&#39;./webpack-stats.json&#39;</span><span class="p">}),</span> 
+        <span class="c1">//makes jQuery available in every module</span>
+        <span class="k">new</span> <span class="nx">webpack</span><span class="p">.</span><span class="nx">ProvidePlugin</span><span class="p">({</span> 
+            <span class="nx">$</span><span class="o">:</span> <span class="s1">&#39;jquery&#39;</span><span class="p">,</span>
+            <span class="nx">jQuery</span><span class="o">:</span> <span class="s1">&#39;jquery&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;window.jQuery&#39;</span><span class="o">:</span> <span class="s1">&#39;jquery&#39;</span> 
+        <span class="p">})</span>
+    <span class="p">],</span>
+    
+    <span class="nx">module</span><span class="o">:</span> <span class="p">{</span>
+        <span class="nx">loaders</span><span class="o">:</span> <span class="p">[</span>
+            <span class="c1">//a regexp that tells webpack use the following loaders on all </span>
+            <span class="c1">//.js and .jsx files</span>
+            <span class="p">{</span><span class="nx">test</span><span class="o">:</span> <span class="sr">/\.jsx?$/</span><span class="p">,</span> 
+                <span class="c1">//we definitely don&#39;t want babel to transpile all the files in </span>
+                <span class="c1">//node_modules. That would take a long time.</span>
+                <span class="nx">exclude</span><span class="o">:</span> <span class="sr">/node_modules/</span><span class="p">,</span> 
+                <span class="c1">//use the babel loader </span>
+                <span class="nx">loader</span><span class="o">:</span> <span class="s1">&#39;babel-loader&#39;</span><span class="p">,</span> 
+                <span class="nx">query</span><span class="o">:</span> <span class="p">{</span>
+                    <span class="c1">//specify that we will be dealing with React code</span>
+                    <span class="nx">presets</span><span class="o">:</span> <span class="p">[</span><span class="s1">&#39;react&#39;</span><span class="p">]</span> 
+                <span class="p">}</span>
+            <span class="p">}</span>
+        <span class="p">]</span>
+    <span class="p">},</span>
+    
+    <span class="nx">resolve</span><span class="o">:</span> <span class="p">{</span>
+        <span class="c1">//tells webpack where to look for modules</span>
+        <span class="nx">modulesDirectories</span><span class="o">:</span> <span class="p">[</span><span class="s1">&#39;node_modules&#39;</span><span class="p">],</span>
+        <span class="c1">//extensions that should be used to resolve modules</span>
+        <span class="nx">extensions</span><span class="o">:</span> <span class="p">[</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;.js&#39;</span><span class="p">,</span> <span class="s1">&#39;.jsx&#39;</span><span class="p">]</span> 
+    <span class="p">}</span>   
+<span class="p">}</span></code></pre></figure>
+
+<p>Webpack should be properly configured now.</p>
+
+<h1 id="hello-react">Hello React</h1>
+
+<p>Let’s create a simple Hello World app in React, just to test that our bundler is compiling JSX properly. Open <code>assets/js/index.js</code> and enter the following code:</p>
+
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">React</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;react&#39;</span><span class="p">)</span>
+<span class="kd">var</span> <span class="nx">ReactDOM</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;react-dom&#39;</span><span class="p">)</span>
+
+<span class="kd">var</span> <span class="nx">Hello</span> <span class="o">=</span> <span class="nx">React</span><span class="p">.</span><span class="nx">createClass</span> <span class="p">({</span>
+    <span class="nx">render</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="o">&lt;</span><span class="nx">h1</span><span class="o">&gt;</span>
+            <span class="nx">Hello</span><span class="p">,</span> <span class="nx">React</span><span class="o">!</span>
+            <span class="o">&lt;</span><span class="err">/h1&gt;</span>
+        <span class="p">)</span>
+    <span class="p">}</span>
+<span class="p">})</span>
+
+<span class="nx">ReactDOM</span><span class="p">.</span><span class="nx">render</span><span class="p">(</span><span class="o">&lt;</span><span class="nx">Hello</span> <span class="o">/&gt;</span><span class="p">,</span> <span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s1">&#39;container&#39;</span><span class="p">))</span></code></pre></figure>
+
+<p>Now let’s run our bundler as a quick sanity check. Run <code>./node_modules/.bin/webpack --config webpack.config.js</code> from the command line. If you’ve entered everything as explained above, you should see a message containing the name of your new bundle (main followed by a hash). Make sure you deal with any error messages before continuing.</p>
+
+<h1 id="hello-django">Hello Django</h1>
+
+<p>First off, make sure you’re in your virtualenv, then run <code>pip install django-webpack-loader</code>. Make the following changes to your <code>settings.py</code> file.</p>
+
+<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">INSTALLED_APPS</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="o">...</span>
+    <span class="s">&#39;webpack_loader&#39;</span>
+    <span class="o">...</span>
+<span class="p">)</span>
+
+<span class="n">STATICFILES_DIRS</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="c">#This lets Django&#39;s collectstatic store our bundles</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">BASE_DIR</span><span class="p">,</span> <span class="s">&#39;assets&#39;</span><span class="p">),</span> 
+<span class="p">)</span>
+
+<span class="n">WEBPACK_LOADER</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">&#39;DEFAULT&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s">&#39;BUNDLE_DIR_NAME&#39;</span><span class="p">:</span> <span class="s">&#39;bundles/&#39;</span><span class="p">,</span>
+        <span class="s">&#39;STATS_FILE&#39;</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">BASE_DIR</span><span class="p">,</span> <span class="s">&#39;webpack-stats.json&#39;</span><span class="p">),</span>
+    <span class="p">}</span>
+<span class="p">}</span></code></pre></figure>
+
+<p>Open up the html template where you want to include React. Add the template tag {% load render_bundle from webpack_loader %}  at the very top of the page. Then include {% render_bundle ‘main’ %} in the body of your template, where you want your React code to run. Just make sure to add it below a div with the attribute <code>id="container"</code>.</p>
+
+<p>Run your localhost server and navigate to the page where you included React. You should see a header saying “Hello React!”</p>
+
+<p><em>We are now at v0.0.2 in the <a href="https://github.com/geezhawk/drf-react.git">GitHub repo</a></em></p>
+
+<h1 id="hello-ajax">Hello AJAX</h1>
+
+<p>If you were paying attention, you’ll have noticed we included a jQuery plugin in our <code>webpack.config.js</code> file. It’s not necessary, since you could just as well create XHR requests with vanilla JavaScript, but it makes it a lot easier. You can now use jQuery to to populate your page with data from your API. Edit <code>assets/js/index.js</code> as follows:</p>
+
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">React</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;react&#39;</span><span class="p">)</span>
+<span class="kd">var</span> <span class="nx">ReactDOM</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;react-dom&#39;</span><span class="p">)</span>
+
+<span class="kd">var</span> <span class="nx">BooksList</span> <span class="o">=</span> <span class="nx">React</span><span class="p">.</span><span class="nx">createClass</span><span class="p">({</span>
+    <span class="nx">loadBooksFromServer</span><span class="o">:</span> <span class="kd">function</span><span class="p">(){</span>
+        <span class="nx">$</span><span class="p">.</span><span class="nx">ajax</span><span class="p">({</span>
+            <span class="nx">url</span><span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">props</span><span class="p">.</span><span class="nx">url</span><span class="p">,</span>
+            <span class="nx">datatype</span><span class="o">:</span> <span class="s1">&#39;json&#39;</span><span class="p">,</span>
+            <span class="nx">cache</span><span class="o">:</span> <span class="kc">false</span><span class="p">,</span>
+            <span class="nx">success</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">data</span><span class="p">)</span> <span class="p">{</span>
+                <span class="k">this</span><span class="p">.</span><span class="nx">setState</span><span class="p">({</span><span class="nx">data</span><span class="o">:</span> <span class="nx">data</span><span class="p">});</span>
+            <span class="p">}.</span><span class="nx">bind</span><span class="p">(</span><span class="k">this</span><span class="p">)</span>
+        <span class="p">})</span>
+    <span class="p">},</span>
+
+    <span class="nx">getInitialState</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="p">{</span><span class="nx">data</span><span class="o">:</span> <span class="p">[]};</span>
+    <span class="p">},</span>
+
+    <span class="nx">componentDidMount</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">loadBooksFromServer</span><span class="p">();</span>
+        <span class="nx">setInterval</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">loadBooksFromServer</span><span class="p">,</span> 
+                    <span class="k">this</span><span class="p">.</span><span class="nx">props</span><span class="p">.</span><span class="nx">pollInterval</span><span class="p">)</span>
+    <span class="p">},</span> 
+    <span class="nx">render</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">state</span><span class="p">.</span><span class="nx">data</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;DATA!&#39;</span><span class="p">)</span>
+            <span class="kd">var</span> <span class="nx">bookNodes</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">state</span><span class="p">.</span><span class="nx">data</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">book</span><span class="p">){</span>
+                <span class="k">return</span> <span class="o">&lt;</span><span class="nx">li</span><span class="o">&gt;</span> <span class="p">{</span><span class="nx">book</span><span class="p">.</span><span class="nx">title</span><span class="p">}</span> <span class="o">&lt;</span><span class="err">/li&gt;</span>
+            <span class="p">})</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="o">&lt;</span><span class="nx">div</span><span class="o">&gt;</span>
+                <span class="o">&lt;</span><span class="nx">h1</span><span class="o">&gt;</span><span class="nx">Hello</span> <span class="nx">React</span><span class="o">!&lt;</span><span class="err">/h1&gt;</span>
+                <span class="o">&lt;</span><span class="nx">ul</span><span class="o">&gt;</span>
+                    <span class="p">{</span><span class="nx">bookNodes</span><span class="p">}</span>
+                <span class="o">&lt;</span><span class="err">/ul&gt;</span>
+            <span class="o">&lt;</span><span class="err">/div&gt;</span>
+        <span class="p">)</span>
+    <span class="p">}</span>
+<span class="p">})</span>
+
+<span class="nx">ReactDOM</span><span class="p">.</span><span class="nx">render</span><span class="p">(</span><span class="o">&lt;</span><span class="nx">BooksList</span> <span class="nx">url</span><span class="o">=</span><span class="s1">&#39;/api/&#39;</span> <span class="nx">pollInterval</span><span class="o">=</span><span class="p">{</span><span class="mi">1000</span><span class="p">}</span> <span class="o">/&gt;</span><span class="p">,</span> 
+    <span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s1">&#39;container&#39;</span><span class="p">))</span></code></pre></figure>
+
+<p>Compile the bundle one more time, and then run your localhost server to see data from the page loaded asynchronously. Now, try adding new books to the database, and watch them appear on the page. Awesome!</p>
+
+<h1 id="success">Success</h1>
+
+<p>This tutorial has provided only a small taste of everything offered by DRF and React. But now you know how the two work together, and you can get on to the fun part of actually building stuff.</p>
+
+</div>
+
+<div class="related">
+  <h2>Related Posts</h2>
+  <ul class="related-posts">
+    
+      <li>
+        <h3>
+          <a href="/user-authentication-with-react-and-django-rest-framework">
+            Token-based authentication with Django and React
+            <small>24 Mar 2016</small>
+          </a>
+        </h3>
+      </li>
+    
+      <li>
+        <h3>
+          <a href="/simple-authentication-with-django-allauth">
+            The missing Django Allauth tutorial
+            <small>12 Jan 2016</small>
+          </a>
+        </h3>
+      </li>
+    
+  </ul>
+</div>
+
+    </div>
+
+  </body>
+</html>
